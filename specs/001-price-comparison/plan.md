@@ -18,7 +18,7 @@ Build a public-facing price comparison marketplace for Makita tools. A manually-
 **Target Platform**: Web browser — desktop-first with responsive mobile support
 **Project Type**: web-service (full-stack web application)
 **Performance Goals**: Main page renders tool catalog in under 3 seconds; comparison page loads in under 1 second (served from pre-scraped DB data)
-**Constraints**: Price data must not be staler than 24 hours; single-server deployment; no real-time scraping on user request
+**Constraints**: Price data must not be staler than 24 hours; single-server deployment; public visitors always see pre-scraped data (no on-demand scraping per visitor request); operator can trigger a manual scrape at any time via a protected endpoint
 **Scale/Scope**: ~100s of tools, handful of authorized stores (~5–15), one full scrape per day
 
 ## Constitution Check
