@@ -115,3 +115,10 @@ logs/
 coverage/
 test-results/
 playwright-report/
+
+# SQLite runtime artifacts
+*.db-journal
+*.db-shm
+*.db-wal
+backend/data/
+backend/prisma/data/

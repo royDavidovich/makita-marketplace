@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Sample Store",
+    "base_url": "https://www.example-store.co.il",
+    "is_active": false,
+    "selectors": {
+      "priceSelector": ".product-price",
+      "productUrlPattern": "/products/{model}"
+    }
+  }
+]

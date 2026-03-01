@@ -1,0 +1,23 @@
+[
+  {
+    "model_number": "DHP484Z",
+    "name": "Makita 18V LXT Brushless Combi Drill",
+    "category": "Drills",
+    "image_url": "https://www.makita.co.uk/media/catalog/product/d/h/dhp484z_1.jpg",
+    "description": "Cordless brushless 2-speed combi drill/driver, body only"
+  },
+  {
+    "model_number": "DGA504Z",
+    "name": "Makita 18V LXT Angle Grinder 125mm",
+    "category": "Grinders",
+    "image_url": "https://www.makita.co.uk/media/catalog/product/d/g/dga504z_1.jpg",
+    "description": "Cordless brushless angle grinder, 125mm disc, body only"
+  },
+  {
+    "model_number": "DJV182Z",
+    "name": "Makita 18V LXT Jigsaw",
+    "category": "Saws",
+    "image_url": "https://www.makita.co.uk/media/catalog/product/d/j/djv182z_1.jpg",
+    "description": "Cordless 4-stroke jigsaw with variable speed, body only"
+  }
+]

@@ -18,15 +18,15 @@
 
 **Purpose**: Initialize project structure, tooling, and config files.
 
-- [ ] T001 Create top-level directory structure: `backend/`, `frontend/`, `config/` with all subdirectories per plan.md
-- [ ] T002 Initialize backend TypeScript/Node.js project — create `backend/package.json` (Express, Prisma, Playwright, node-cron, cors, dotenv) and `backend/tsconfig.json`
-- [ ] T003 [P] Initialize frontend Vite+React+TypeScript project — create `frontend/package.json` (React 18, React Router v6, TanStack Query, Tailwind CSS) and `frontend/tsconfig.json`
-- [ ] T004 [P] Configure backend ESLint + Prettier in `backend/.eslintrc.js` and `backend/.prettierrc`
-- [ ] T005 [P] Configure frontend ESLint + Prettier in `frontend/.eslintrc.js` and `frontend/.prettierrc`
-- [ ] T006 [P] Configure Tailwind CSS in `frontend/tailwind.config.js` and `frontend/postcss.config.js`
-- [ ] T007 [P] Create `config/stores.json` with sample store entry (name, base_url, is_active fields)
-- [ ] T008 [P] Create `config/tools.json` with 2–3 sample Makita tool entries (model_number, name, category, image_url, description)
-- [ ] T009 [P] Create `backend/.env.example` and `frontend/.env.example` with documented variables
+- [x] T001 Create top-level directory structure: `backend/`, `frontend/`, `config/` with all subdirectories per plan.md
+- [x] T002 Initialize backend TypeScript/Node.js project — create `backend/package.json` (Express, Prisma, Playwright, node-cron, cors, dotenv) and `backend/tsconfig.json`
+- [x] T003 [P] Initialize frontend Vite+React+TypeScript project — create `frontend/package.json` (React 18, React Router v6, TanStack Query, Tailwind CSS) and `frontend/tsconfig.json`
+- [x] T004 [P] Configure backend ESLint + Prettier in `backend/eslint.config.js` and `backend/.prettierrc`
+- [x] T005 [P] Configure frontend ESLint + Prettier in `frontend/eslint.config.js` and `frontend/.prettierrc`
+- [x] T006 [P] Configure Tailwind CSS in `frontend/tailwind.config.js` and `frontend/postcss.config.js`
+- [x] T007 [P] Create `config/stores.json` with sample store entry (name, base_url, is_active fields)
+- [x] T008 [P] Create `config/tools.json` with 2–3 sample Makita tool entries (model_number, name, category, image_url, description)
+- [x] T009 [P] Create `backend/.env.example` and `frontend/.env.example` with documented variables
 
 ---
 
@@ -36,14 +36,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T010 Define Prisma schema in `backend/prisma/schema.prisma` — Tool, Store, and PriceListing models with all fields, relations, and unique constraints from data-model.md
-- [ ] T011 Run initial Prisma migration (`prisma migrate dev --name init`) and verify `backend/prisma/migrations/` is generated
-- [ ] T012 Implement config loader in `backend/src/config/loader.ts` — reads `config/stores.json` and `config/tools.json`, returns typed arrays
-- [ ] T013 Implement DB seeder in `backend/src/config/seeder.ts` — upserts stores and tools from config into the database on startup; marks removed entries `is_active = false` without hard-deleting
-- [ ] T014 [P] Set up Express app in `backend/src/app.ts` — CORS, JSON body parser, centralized error handler middleware, and route mounting stubs
-- [ ] T015 [P] Create backend entry point `backend/src/index.ts` — connects to DB, runs seeder, starts Express server on configured port
-- [ ] T016 [P] Scaffold React app shell in `frontend/src/main.tsx` and `frontend/src/App.tsx` — React Router `<BrowserRouter>`, global TanStack Query `<QueryClientProvider>`, placeholder routes for `/` and `/tools/:modelNumber`
-- [ ] T017 [P] Implement typed API client in `frontend/src/services/api.ts` — typed `fetch` wrappers for `GET /api/tools`, `GET /api/tools/:modelNumber`, and `GET /api/categories`; base URL from `VITE_API_URL`
+- [x] T010 Define Prisma schema in `backend/prisma/schema.prisma` — Tool, Store, and PriceListing models with all fields, relations, and unique constraints from data-model.md
+- [x] T011 Run initial Prisma migration (`prisma migrate dev --name init`) and verify `backend/prisma/migrations/` is generated
+- [x] T012 Implement config loader in `backend/src/config/loader.ts` — reads `config/stores.json` and `config/tools.json`, returns typed arrays
+- [x] T013 Implement DB seeder in `backend/src/config/seeder.ts` — upserts stores and tools from config into the database on startup; marks removed entries `is_active = false` without hard-deleting
+- [x] T014 [P] Set up Express app in `backend/src/app.ts` — CORS, JSON body parser, centralized error handler middleware, and route mounting stubs
+- [x] T015 [P] Create backend entry point `backend/src/index.ts` — connects to DB, runs seeder, starts Express server on configured port
+- [x] T016 [P] Scaffold React app shell in `frontend/src/main.tsx` and `frontend/src/App.tsx` — React Router `<BrowserRouter>`, global TanStack Query `<QueryClientProvider>`, placeholder routes for `/` and `/tools/:modelNumber`
+- [x] T017 [P] Implement typed API client in `frontend/src/services/api.ts` — typed `fetch` wrappers for `GET /api/tools`, `GET /api/tools/:modelNumber`, and `GET /api/categories`; base URL from `VITE_API_URL`
 
 **Checkpoint**: Backend starts cleanly and seeds DB from config. Frontend renders app shell at `localhost:5173`.
 
@@ -57,15 +57,15 @@
 
 ### Implementation
 
-- [ ] T018 Implement `GET /api/tools` route handler in `backend/src/api/tools.ts` — queries all active tools joined with their lowest available PriceListing price; supports optional `?category=` and `?q=` query params (substring match on name/model_number); returns response shaped per contracts/rest-api.md
-- [ ] T019 Implement `GET /api/categories` route handler in `backend/src/api/categories.ts` — returns distinct category values from active tools
-- [ ] T020 Mount `/api/tools` and `/api/categories` routes in `backend/src/app.ts`
-- [ ] T021 [P] [US1] Create `PriceBadge` component in `frontend/src/components/PriceBadge.tsx` — formats a numeric price as NIS currency (₪), handles null/undefined with a "–" placeholder
-- [ ] T022 [P] [US1] Create `LoadingState` component in `frontend/src/components/LoadingState.tsx` — skeleton card grid for the tool list loading state
-- [ ] T023 [P] [US1] Create `ErrorState` component in `frontend/src/components/ErrorState.tsx` — error message with retry button
-- [ ] T024 [P] [US1] Create `ToolCard` component in `frontend/src/components/ToolCard.tsx` — displays tool image, name, model number, category chip, and lowest price via `PriceBadge`; entire card is a React Router `<Link>` to `/tools/:modelNumber`
-- [ ] T025 [US1] Implement `HomePage` in `frontend/src/pages/HomePage.tsx` — uses TanStack Query to fetch `/api/tools`; renders a responsive grid of `ToolCard` components; shows `LoadingState` while fetching, `ErrorState` on failure, and an empty-state message when the catalog has no tools; includes a category filter dropdown populated from `/api/categories`
-- [ ] T026 [US1] Register `HomePage` at route `/` in `frontend/src/App.tsx`
+- [x] T018 Implement `GET /api/tools` route handler in `backend/src/api/tools.ts` — queries all active tools joined with their lowest available PriceListing price; supports optional `?category=` and `?q=` query params (substring match on name/model_number); returns response shaped per contracts/rest-api.md
+- [x] T019 Implement `GET /api/categories` route handler in `backend/src/api/categories.ts` — returns distinct category values from active tools
+- [x] T020 Mount `/api/tools` and `/api/categories` routes in `backend/src/app.ts`
+- [x] T021 [P] [US1] Create `PriceBadge` component in `frontend/src/components/PriceBadge.tsx` — formats a numeric price as NIS currency (₪), handles null/undefined with a "–" placeholder
+- [x] T022 [P] [US1] Create `LoadingState` component in `frontend/src/components/LoadingState.tsx` — skeleton card grid for the tool list loading state
+- [x] T023 [P] [US1] Create `ErrorState` component in `frontend/src/components/ErrorState.tsx` — error message with retry button
+- [x] T024 [P] [US1] Create `ToolCard` component in `frontend/src/components/ToolCard.tsx` — displays tool image, name, model number, category chip, and lowest price via `PriceBadge`; entire card is a React Router `<Link>` to `/tools/:modelNumber`
+- [x] T025 [US1] Implement `HomePage` in `frontend/src/pages/HomePage.tsx` — uses TanStack Query to fetch `/api/tools`; renders a responsive grid of `ToolCard` components; shows `LoadingState` while fetching, `ErrorState` on failure, and an empty-state message when the catalog has no tools; includes a category filter dropdown populated from `/api/categories`
+- [x] T026 [US1] Register `HomePage` at route `/` in `frontend/src/App.tsx`
 
 **Checkpoint**: Main page fully functional — tool catalog visible with images, model numbers, and lowest prices.
 
