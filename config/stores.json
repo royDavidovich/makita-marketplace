@@ -56,7 +56,7 @@
     "is_active": true,
     "selectors": {
       "searchUrlPattern": "https://www.atlastools.co.il/search/?q={model_number}",
-      "productLinkSelector": ".layout_list_item a[href*=\"/items/\"]",
+      "productLinkSelector": ".layout_list_item[data-item-code=\"{model_number}\"] a[href*=\"/items/\"]",
       "priceSelector": "span.price_value"
     }
   }

@@ -185,9 +185,11 @@ async function attemptScrape(
       const searchUrl = buildUrl(store.selectors.searchUrlPattern, store.base_url, modelNumber);
       await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
 
-      const linkSelector = store.selectors.productLinkSelector ?? 'a';
-      // Wait for search results to render (JS SPAs like KSP fetch results asynchronously)
-      const linkFound = await page.waitForSelector(linkSelector, { timeout: 30_000 }).catch(() => null);
+      const rawSelector = store.selectors.productLinkSelector ?? 'a';
+      const linkSelector = rawSelector.replace(/\{model_number\}/gi, modelNumber);
+      // Wait for search results to render (JS SPAs like KSP fetch results asynchronously).
+      // state:'attached' avoids timing out on stores that server-render hidden product cards.
+      const linkFound = await page.waitForSelector(linkSelector, { timeout: 30_000, state: 'attached' }).catch(() => null);
       console.log(`[scraper] ${store.name}/${modelNumber} — page URL after search:`, page.url());
       console.log(`[scraper] ${store.name}/${modelNumber} — link selector "${linkSelector}" found:`, !!linkFound);
 
@@ -227,8 +229,10 @@ async function attemptScrape(
       await page.fill(store.selectors.searchInputSelector, modelNumber);
       await page.locator(store.selectors.searchInputSelector).press('Enter');
 
-      const linkSelector = store.selectors.productLinkSelector ?? 'a';
-      const linkFound = await page.waitForSelector(linkSelector, { timeout: 30_000 }).catch(() => null);
+      const rawSelector = store.selectors.productLinkSelector ?? 'a';
+      const linkSelector = rawSelector.replace(/\{model_number\}/gi, modelNumber);
+      // state:'attached' avoids timing out on stores that server-render hidden product cards.
+      const linkFound = await page.waitForSelector(linkSelector, { timeout: 30_000, state: 'attached' }).catch(() => null);
       console.log(`[scraper] ${store.name}/${modelNumber} — page URL after search:`, page.url());
       console.log(`[scraper] ${store.name}/${modelNumber} — link selector "${linkSelector}" found:`, !!linkFound);
 
