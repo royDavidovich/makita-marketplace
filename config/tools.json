@@ -19,5 +19,33 @@
     "category": "Angle Grinders",
     "image_url": "https://media.rs-online.com/F0385465-01.jpg",
     "description": "18V Brushless Angle Grinder, 115mm"
+  },
+  {
+    "model_number": "DHR171Z",
+    "name": "Makita 18V LXT Brushless 17mm Rotary Hammer",
+    "category": "Rotary Hammers",
+    "image_url": "https://makita.com.sg/wp-content/uploads/2017/09/DHR171-1.jpg",
+    "description": "18V Brushless SDS-Plus Rotary Hammer, compact and lightweight with 1.2 Joules impact energy."
+  },
+  {
+    "model_number": "DJV182Z",
+    "name": "Makita 18V LXT Brushless Jigsaw",
+    "category": "Jigsaws",
+    "image_url": "https://makita.com.sg/wp-content/uploads/2015/05/DJV182-1.jpg",
+    "description": "18V Brushless Barrel Grip Jigsaw, featuring tool-less blade change and variable speed control."
+  },
+  {
+    "model_number": "DTM52Z",
+    "name": "Makita 18V LXT Brushless Multi Tool",
+    "category": "Multi Tools",
+    "image_url": "https://makita.com.sg/wp-content/uploads/2021/07/DTM52-1.jpg",
+    "description": "18V Brushless Multi Tool, Starlock Max compatible with Anti-Vibration Technology (AVT)."
+  },
+  {
+    "model_number": "DBO180Z",
+    "name": "Makita 18V LXT 125mm Random Orbit Sander",
+    "category": "Sanders",
+    "image_url": "https://makita.com.sg/wp-content/uploads/2013/05/DBO180-1.jpg",
+    "description": "18V Cordless 125mm Random Orbit Sander, 3-speed electronic control and ergonomic design."
   }
 ]
