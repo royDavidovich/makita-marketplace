@@ -24,28 +24,35 @@
     "model_number": "DHR171Z",
     "name": "Makita 18V LXT Brushless 17mm Rotary Hammer",
     "category": "Rotary Hammers",
-    "image_url": "https://makita.com.sg/wp-content/uploads/2017/09/DHR171-1.jpg",
+    "image_url": "https://d3m9l0v76dty0.cloudfront.net/system/photos/2778979/large/f03b12b3b49a7b8560e288ccb0f1303e.jpg",
     "description": "18V Brushless SDS-Plus Rotary Hammer, compact and lightweight with 1.2 Joules impact energy."
   },
   {
     "model_number": "DJV182Z",
     "name": "Makita 18V LXT Brushless Jigsaw",
     "category": "Jigsaws",
-    "image_url": "https://makita.com.sg/wp-content/uploads/2015/05/DJV182-1.jpg",
+    "image_url": "https://d3m9l0v76dty0.cloudfront.net/system/photos/13985363/large/94838c65f5d1b03118ec5eb0b75536e5.jpg",
     "description": "18V Brushless Barrel Grip Jigsaw, featuring tool-less blade change and variable speed control."
   },
   {
     "model_number": "DTM52Z",
     "name": "Makita 18V LXT Brushless Multi Tool",
     "category": "Multi Tools",
-    "image_url": "https://makita.com.sg/wp-content/uploads/2021/07/DTM52-1.jpg",
+    "image_url": "https://d3m9l0v76dty0.cloudfront.net/system/photos/8338418/large/8a9c6a1170968ad7731027e596243fea.jpg",
     "description": "18V Brushless Multi Tool, Starlock Max compatible with Anti-Vibration Technology (AVT)."
   },
   {
     "model_number": "DBO180Z",
     "name": "Makita 18V LXT 125mm Random Orbit Sander",
     "category": "Sanders",
-    "image_url": "https://makita.com.sg/wp-content/uploads/2013/05/DBO180-1.jpg",
+    "image_url": "https://d3m9l0v76dty0.cloudfront.net/system/photos/5849309/large/095c158853d112800c14ea3415d5904f.jpg",
     "description": "18V Cordless 125mm Random Orbit Sander, 3-speed electronic control and ergonomic design."
+  },
+  {
+    "model_number": "DC18RC",
+    "name": "Makita 18V LXT Rapid Optimum Charger",
+    "category": "Chargers",
+    "image_url": "https://d3m9l0v76dty0.cloudfront.net/system/photos/14070582/large/3a3d146dd6667edc9384241b6e2182a7.jpg",
+    "description": "18V LXT Rapid Optimum Charger, communicates with the battery's built-in chip throughout the charging process to optimize battery life."
   }
 ]
