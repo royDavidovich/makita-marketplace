@@ -1,16 +1,23 @@
 [
   {
-    "model_number": "DHP484Z",
-    "name": "Makita 18V LXT Brushless Combi Drill",
-    "category": "Drills",
-    "image_url": "https://www.makita.co.uk/media/catalog/product/d/h/dhp484z_1.jpg",
-    "description": "Cordless brushless 2-speed combi drill/driver, body only"
-  },
-  {
-    "model_number": "DTD157Z",
+    "model_number": "DTD157",
     "name": "Makita 18V Impact Driver",
     "category": "Impact Drivers",
-    "image_url": "",
+    "image_url": "https://makita.com.sg/wp-content/uploads/2021/04/DTD157-1.jpg",
     "description": "18V Brushless Impact Driver, 140 N/m"
+  },
+  {
+    "model_number": "DHR202Z",
+    "name": "Makita 18V Hammer Drill",
+    "category": "Hammer Drills",
+    "image_url": "https://makita.com.sg/wp-content/uploads/2021/04/DHP484-1.jpg",
+    "description": "18V Brushless Hammer Drill, 63 N/m"
+  },
+  {
+    "model_number": "DGA452Z",
+    "name": "Makita 18V Angle Grinder",
+    "category": "Angle Grinders",
+    "image_url": "https://media.rs-online.com/F0385465-01.jpg",
+    "description": "18V Brushless Angle Grinder, 115mm"
   }
 ]

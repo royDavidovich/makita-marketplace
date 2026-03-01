@@ -7,6 +7,7 @@ export interface StoreConfig {
   is_active: boolean;
   selectors?: {
     priceSelector?: string;
+    searchPagePriceSelector?: string;
     productUrlPattern?: string;
     searchUrlPattern?: string;
     productLinkSelector?: string;

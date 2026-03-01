@@ -21,10 +21,13 @@ async function attemptScrape(
 ): Promise<ScrapeResult> {
   const browser = await chromium.launch({ headless: true });
   try {
-    const page = await browser.newPage();
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'he-IL,he;q=0.9,en;q=0.8',
+    const context = await browser.newContext({
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      locale: 'he-IL',
+      extraHTTPHeaders: { 'Accept-Language': 'he-IL,he;q=0.9,en;q=0.8' },
     });
+    const page = await context.newPage();
 
     let productUrl: string | null = null;
 
@@ -39,14 +42,31 @@ async function attemptScrape(
       await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
 
       const linkSelector = store.selectors.productLinkSelector ?? 'a';
-      // Wait for search results to render (JS-driven stores like Konimbo load results after DOM)
-      const linkFound = await page.waitForSelector(linkSelector, { timeout: 15_000 }).catch(() => null);
+      // Wait for search results to render (JS SPAs like KSP fetch results asynchronously)
+      const linkFound = await page.waitForSelector(linkSelector, { timeout: 30_000 }).catch(() => null);
       console.log(`[scraper] ${store.name}/${modelNumber} — page URL after search:`, page.url());
       console.log(`[scraper] ${store.name}/${modelNumber} — link selector "${linkSelector}" found:`, !!linkFound);
       const href = await page.locator(linkSelector).first().getAttribute('href').catch(() => null);
       const trimmedHref = href?.trim() ?? null;
       console.log(`[scraper] ${store.name}/${modelNumber} — href:`, trimmedHref);
       if (!trimmedHref) return { isAvailable: false, price: null, productUrl: null };
+
+      // If store provides a search-page price selector, read price here before navigating away
+      if (store.selectors?.searchPagePriceSelector) {
+        const searchPriceText = await page
+          .locator(store.selectors.searchPagePriceSelector)
+          .first()
+          .textContent({ timeout: 5_000 })
+          .catch(() => null);
+        console.log(`[scraper] ${store.name}/${modelNumber} — searchPagePriceText:`, JSON.stringify(searchPriceText));
+        const searchPriceNum = parseFloat((searchPriceText ?? '').replace(/[^\d.]/g, ''));
+        if (!isNaN(searchPriceNum) && searchPriceNum > 0) {
+          const fullUrl = trimmedHref.startsWith('http')
+            ? trimmedHref
+            : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
+          return { isAvailable: true, price: searchPriceNum, productUrl: fullUrl };
+        }
+      }
 
       const fullUrl = trimmedHref.startsWith('http')
         ? trimmedHref
@@ -59,9 +79,9 @@ async function attemptScrape(
       return { isAvailable: false, price: null, productUrl: null };
     }
 
-    // Extract price — wait for element to render before reading
+    // Extract price from product page
     const priceSelector = store.selectors?.priceSelector ?? '[class*="price"]';
-    await page.waitForSelector(priceSelector, { timeout: 15_000 }).catch(() => null);
+    await page.waitForSelector(priceSelector, { timeout: 30_000 }).catch(() => null);
     const priceText = await page
       .locator(priceSelector)
       .first()

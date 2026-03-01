@@ -11,6 +11,16 @@
     }
   },
   {
+    "name": "KSP",
+    "base_url": "https://ksp.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://ksp.co.il/web/cat/?search={model_number}",
+      "productLinkSelector": "a[href^=\"/web/item/\"]",
+      "searchPagePriceSelector": "[aria-label^=\"מחיר המוצר\"]"
+    }
+  },
+  {
     "name": "MG Tools",
     "base_url": "https://www.mgtools.co.il",
     "is_active": true,
