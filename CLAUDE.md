@@ -30,6 +30,6 @@ TypeScript — Node.js 20 (backend) + React 18 (frontend): Follow standard conve
 
 ## Workflow Preferences
 
-- **Commit messages**: Always use a meaningful, descriptive commit message — even when the user simply says "commit changes". Follow the Conventional Commits format: `type(scope): short description`. Never use generic messages like "commit changes" or "update files".
+- **Commit messages**: Always use a meaningful, descriptive commit message — even when the user simply says "commit changes". Follow the Conventional Commits format: `type(scope): short description`. The scope and description must be self-explanatory without knowing task IDs or story numbers. Use the actual feature/module name as scope (e.g., `feat(comparison-page)`, `fix(scraper)`, `chore(prisma)`). Never use generic messages like "commit changes", "update files", or opaque scopes like "us2".
 
 <!-- MANUAL ADDITIONS END -->
