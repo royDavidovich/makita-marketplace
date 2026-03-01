@@ -26,18 +26,31 @@ export function getScrapeStatus(): ScrapeState {
   return { ...state };
 }
 
+export interface ScrapeOptions {
+  /** Filter to specific model numbers; omit or leave empty to scrape all tools. */
+  modelNumbers?: string[];
+  /** Filter to specific store names; omit or leave empty to scrape all active stores. */
+  storeNames?: string[];
+}
+
 export async function runScrape(
   prisma: PrismaClient,
-  modelNumber?: string,
+  options: ScrapeOptions = {},
 ): Promise<void> {
   if (state.status === 'running') {
     throw new Error('A scrape is already running');
   }
 
+  const { modelNumbers, storeNames } = options;
+
   const activeStores = loadStores().filter((s) => s.is_active);
+  const storesToScrape = storeNames?.length
+    ? activeStores.filter((s) => storeNames.includes(s.name))
+    : activeStores;
+
   const allTools = loadTools();
-  const toolsToScrape = modelNumber
-    ? allTools.filter((t) => t.model_number === modelNumber)
+  const toolsToScrape = modelNumbers?.length
+    ? allTools.filter((t) => modelNumbers.includes(t.model_number))
     : allTools;
 
   state.status = 'running';
@@ -48,7 +61,7 @@ export async function runScrape(
   state.errors = 0;
 
   console.log(
-    `[prices] Starting scrape: ${toolsToScrape.length} tools × ${activeStores.length} stores`,
+    `[prices] Starting scrape: ${toolsToScrape.length} tools × ${storesToScrape.length} stores`,
   );
 
   try {
@@ -58,7 +71,7 @@ export async function runScrape(
       });
       if (!dbTool || !dbTool.isActive) continue;
 
-      for (const storeConfig of activeStores) {
+      for (const storeConfig of storesToScrape) {
         const dbStore = await prisma.store.findUnique({
           where: { baseUrl: storeConfig.base_url },
         });

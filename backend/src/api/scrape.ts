@@ -11,6 +11,12 @@ function requireScrapeSecret(req: Request, res: Response, next: NextFunction): v
   next();
 }
 
+function parseCommaSeparated(value: unknown): string[] | undefined {
+  if (typeof value !== 'string' || !value.trim()) return undefined;
+  const items = value.split(',').map((s) => s.trim()).filter(Boolean);
+  return items.length > 0 ? items : undefined;
+}
+
 export default function scrapeRouter(prisma: PrismaClient): Router {
   const router = Router();
 
@@ -27,18 +33,19 @@ export default function scrapeRouter(prisma: PrismaClient): Router {
       return;
     }
 
-    const modelNumber =
-      typeof req.query.modelNumber === 'string' ? req.query.modelNumber : undefined;
+    const modelNumbers = parseCommaSeparated(req.query.modelNumbers);
+    const storeNames = parseCommaSeparated(req.query.storeNames);
     const startedAt = new Date();
 
-    void runScrape(prisma, modelNumber).catch((err: unknown) => {
+    void runScrape(prisma, { modelNumbers, storeNames }).catch((err: unknown) => {
       console.error('[scrape] Unhandled error in run:', err);
     });
 
     res.status(202).json({
       data: {
         status: 'started',
-        scope: modelNumber ?? 'full',
+        scope: modelNumbers ?? 'all',
+        stores: storeNames ?? 'all',
         started_at: startedAt.toISOString(),
       },
     });

@@ -62,6 +62,14 @@ export function fetchCategories(): Promise<string[]> {
   return apiFetch<string[]>('/api/categories');
 }
 
+export interface StoreInfo {
+  name: string;
+}
+
+export function fetchStores(): Promise<StoreInfo[]> {
+  return apiFetch<StoreInfo[]>('/api/stores');
+}
+
 // --- Scrape API (operator only) ---
 
 export interface ScrapeStatus {
@@ -73,8 +81,17 @@ export interface ScrapeStatus {
   errors: number;
 }
 
-export async function triggerScrape(secret: string): Promise<void> {
-  const res = await fetch(`${BASE_URL}/api/scrape/run`, {
+export interface ScrapeFilter {
+  modelNumbers?: string[];
+  storeNames?: string[];
+}
+
+export async function triggerScrape(secret: string, filter?: ScrapeFilter): Promise<void> {
+  const qs = new URLSearchParams();
+  if (filter?.modelNumbers?.length) qs.set('modelNumbers', filter.modelNumbers.join(','));
+  if (filter?.storeNames?.length) qs.set('storeNames', filter.storeNames.join(','));
+  const query = qs.toString() ? `?${qs.toString()}` : '';
+  const res = await fetch(`${BASE_URL}/api/scrape/run${query}`, {
     method: 'POST',
     headers: { 'X-Scrape-Secret': secret },
   });
