@@ -36,7 +36,6 @@ export default function toolsRouter(prisma: PrismaClient): Router {
           listings: {
             where: { isAvailable: true },
             orderBy: { price: 'asc' },
-            take: 1,
             include: { store: { select: { name: true } } },
           },
         },

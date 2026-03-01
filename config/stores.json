@@ -5,7 +5,9 @@
     "is_active": false,
     "selectors": {
       "priceSelector": ".product-price",
-      "productUrlPattern": "/products/{model}"
+      "productUrlPattern": "/products/{model_number}",
+      "searchUrlPattern": "https://www.example-store.co.il/search?q={model_number}",
+      "productLinkSelector": ".product-item a"
     }
   }
 ]

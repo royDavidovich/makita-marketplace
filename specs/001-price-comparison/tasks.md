@@ -79,11 +79,11 @@
 
 ### Implementation
 
-- [ ] T027 Implement `GET /api/tools/:modelNumber` route handler in `backend/src/api/tools.ts` — queries the tool by model number; joins all PriceListings with store name; sorts by price ascending; returns 404 with error body if tool not found; response shaped per contracts/rest-api.md
-- [ ] T028 Mount updated route in `backend/src/app.ts` (if not already covered by T020)
-- [ ] T029 [P] [US2] Create `StoreRow` component in `frontend/src/components/StoreRow.tsx` — displays store name, formatted price via `PriceBadge`, and a "View at Store" button; button links to `product_url` with `target="_blank" rel="noopener noreferrer"`; renders a "price unavailable" state when `is_available` is false
-- [ ] T030 [US2] Implement `ComparisonPage` in `frontend/src/pages/ComparisonPage.tsx` — reads `:modelNumber` from route params; uses TanStack Query to fetch `/api/tools/:modelNumber`; renders tool header (name, image, model number, category) and a list of `StoreRow` components sorted by price; shows `LoadingState`, `ErrorState`, 404 message, and a "last scraped" timestamp from the most recent `last_scraped_at` value; shows a note when only one store carries the tool
-- [ ] T031 [US2] Register `ComparisonPage` at route `/tools/:modelNumber` in `frontend/src/App.tsx`
+- [x] T027 Implement `GET /api/tools/:modelNumber` route handler in `backend/src/api/tools.ts` — queries the tool by model number; joins all PriceListings with store name; sorts by price ascending; returns 404 with error body if tool not found; response shaped per contracts/rest-api.md
+- [x] T028 Mount updated route in `backend/src/app.ts` (if not already covered by T020)
+- [x] T029 [P] [US2] Create `StoreRow` component in `frontend/src/components/StoreRow.tsx` — displays store name, formatted price via `PriceBadge`, and a "View at Store" button; button links to `product_url` with `target="_blank" rel="noopener noreferrer"`; renders a "price unavailable" state when `is_available` is false
+- [x] T030 [US2] Implement `ComparisonPage` in `frontend/src/pages/ComparisonPage.tsx` — reads `:modelNumber` from route params; uses TanStack Query to fetch `/api/tools/:modelNumber`; renders tool header (name, image, model number, category) and a list of `StoreRow` components sorted by price; shows `LoadingState`, `ErrorState`, 404 message, and a "last scraped" timestamp from the most recent `last_scraped_at` value; shows a note when only one store carries the tool
+- [x] T031 [US2] Register `ComparisonPage` at route `/tools/:modelNumber` in `frontend/src/App.tsx`
 
 **Checkpoint**: Full browse → compare flow works end-to-end. Click a tool card → comparison page shows all stores with prices.
 
@@ -97,7 +97,7 @@
 
 ### Implementation
 
-- [ ] T032 [US3] Harden `StoreRow` in `frontend/src/components/StoreRow.tsx` — add defensive check: only render the "View at Store" link when `product_url` is a non-empty string; show a disabled/greyed-out state for unavailable listings; confirm `rel="noopener noreferrer"` is present on all external links
+- [x] T032 [US3] Harden `StoreRow` in `frontend/src/components/StoreRow.tsx` — add defensive check: only render the "View at Store" link when `product_url` is a non-empty string; show a disabled/greyed-out state for unavailable listings; confirm `rel="noopener noreferrer"` is present on all external links
 
 **Checkpoint**: All three user stories fully functional. Browse → compare → navigate to store works end-to-end.
 
@@ -107,12 +107,12 @@
 
 **Purpose**: Implements the data pipeline that populates price listings. Required for real data; user story UIs can be built and tested with manually seeded data before this phase.
 
-- [ ] T033 Implement `ScraperService` in `backend/src/services/scraper.ts` — launches Playwright headless browser; accepts a store config entry and a tool model number; navigates to the store, finds the product page, extracts price and product URL; returns structured result or marks `is_available: false` on failure; includes retry logic (max 2 retries) and closes browser on error
-- [ ] T034 Implement store adapter pattern in `backend/src/services/scraper.ts` — each store in `config/stores.json` can carry an optional `selectors` object (`priceSelector`, `productUrlPattern`) so scraping logic is data-driven per store without code changes
-- [ ] T035 Implement `PriceService` in `backend/src/services/prices.ts` — orchestrates full scrape: iterates all active stores × all active tools, calls `ScraperService`, upserts results into `PriceListing` table; tracks in-memory run status (idle/running/completed/failed) with start time, counts, and error count
-- [ ] T036 Implement operator scrape endpoints in `backend/src/api/scrape.ts` — `POST /api/scrape/run` (protected by `X-Scrape-Secret` header, rejects if already running, accepts optional `?modelNumber=` for single-tool scrape, runs `PriceService` async, returns 202) and `GET /api/scrape/status` (returns current run state from `PriceService`)
-- [ ] T037 Mount `/api/scrape` routes in `backend/src/app.ts`
-- [ ] T038 Implement nightly scheduler in `backend/src/scheduler/index.ts` — node-cron job at `0 2 * * *` (02:00 nightly) that calls `PriceService`; exports a `startScheduler()` function called from `backend/src/index.ts`
+- [x] T033 Implement `ScraperService` in `backend/src/services/scraper.ts` — launches Playwright headless browser; accepts a store config entry and a tool model number; navigates to the store, finds the product page, extracts price and product URL; returns structured result or marks `is_available: false` on failure; includes retry logic (max 2 retries) and closes browser on error
+- [x] T034 Implement store adapter pattern in `backend/src/services/scraper.ts` — each store in `config/stores.json` can carry an optional `selectors` object (`priceSelector`, `productUrlPattern`) so scraping logic is data-driven per store without code changes
+- [x] T035 Implement `PriceService` in `backend/src/services/prices.ts` — orchestrates full scrape: iterates all active stores × all active tools, calls `ScraperService`, upserts results into `PriceListing` table; tracks in-memory run status (idle/running/completed/failed) with start time, counts, and error count
+- [x] T036 Implement operator scrape endpoints in `backend/src/api/scrape.ts` — `POST /api/scrape/run` (protected by `X-Scrape-Secret` header, rejects if already running, accepts optional `?modelNumber=` for single-tool scrape, runs `PriceService` async, returns 202) and `GET /api/scrape/status` (returns current run state from `PriceService`)
+- [x] T037 Mount `/api/scrape` routes in `backend/src/app.ts`
+- [x] T038 Implement nightly scheduler in `backend/src/scheduler/index.ts` — node-cron job at `0 2 * * *` (02:00 nightly) that calls `PriceService`; exports a `startScheduler()` function called from `backend/src/index.ts`
 
 **Checkpoint**: Manual scrape via `curl -X POST .../api/scrape/run -H "X-Scrape-Secret: ..."` populates price listings and they appear on the comparison page.
 
@@ -120,11 +120,11 @@
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T039 [P] Add responsive Tailwind breakpoints to `ToolCard` in `frontend/src/components/ToolCard.tsx` — grid stacks to single column on small screens, image scales correctly
-- [ ] T040 [P] Add responsive Tailwind breakpoints to `ComparisonPage` in `frontend/src/pages/ComparisonPage.tsx` — store rows readable on small screens, price and store name remain visible
-- [ ] T041 [P] Add `<title>` and meta description to `HomePage` and `ComparisonPage` via `frontend/src/App.tsx` or a `<Helmet>`-equivalent — e.g. "Makita Price Comparison" and "Compare [Tool Name] prices across authorized stores"
-- [ ] T042 [P] Add `stores` config section note to `backend/src/config/loader.ts` — log a warning on startup if `config/stores.json` has no active entries, and if `config/tools.json` has no entries
-- [ ] T043 Validate full setup against `specs/001-price-comparison/quickstart.md` — install deps, configure `.env`, run migration, seed, trigger manual scrape, verify main page and comparison page render correctly with real data
+- [x] T039 [P] Add responsive Tailwind breakpoints to `ToolCard` in `frontend/src/components/ToolCard.tsx` — grid stacks to single column on small screens, image scales correctly
+- [x] T040 [P] Add responsive Tailwind breakpoints to `ComparisonPage` in `frontend/src/pages/ComparisonPage.tsx` — store rows readable on small screens, price and store name remain visible
+- [x] T041 [P] Add `<title>` and meta description to `HomePage` and `ComparisonPage` via `frontend/src/App.tsx` or a `<Helmet>`-equivalent — e.g. "Makita Price Comparison" and "Compare [Tool Name] prices across authorized stores"
+- [x] T042 [P] Add `stores` config section note to `backend/src/config/loader.ts` — log a warning on startup if `config/stores.json` has no active entries, and if `config/tools.json` has no entries
+- [x] T043 Validate full setup against `specs/001-price-comparison/quickstart.md` — install deps, configure `.env`, run migration, seed, trigger manual scrape, verify main page and comparison page render correctly with real data
 
 ---
 

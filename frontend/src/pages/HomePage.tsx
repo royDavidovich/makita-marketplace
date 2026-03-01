@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTools, fetchCategories } from '../services/api';
 import ToolCard from '../components/ToolCard';
@@ -8,6 +8,10 @@ import ErrorState from '../components/ErrorState';
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  useEffect(() => {
+    document.title = 'Makita Price Comparison — Browse Tools';
+  }, []);
 
   const {
     data: categories = [],
