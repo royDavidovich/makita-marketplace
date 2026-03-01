@@ -39,12 +39,18 @@ async function attemptScrape(
       await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
 
       const linkSelector = store.selectors.productLinkSelector ?? 'a';
+      // Wait for search results to render (JS-driven stores like Konimbo load results after DOM)
+      const linkFound = await page.waitForSelector(linkSelector, { timeout: 15_000 }).catch(() => null);
+      console.log(`[scraper] ${store.name}/${modelNumber} — page URL after search:`, page.url());
+      console.log(`[scraper] ${store.name}/${modelNumber} — link selector "${linkSelector}" found:`, !!linkFound);
       const href = await page.locator(linkSelector).first().getAttribute('href').catch(() => null);
-      if (!href) return { isAvailable: false, price: null, productUrl: null };
+      const trimmedHref = href?.trim() ?? null;
+      console.log(`[scraper] ${store.name}/${modelNumber} — href:`, trimmedHref);
+      if (!trimmedHref) return { isAvailable: false, price: null, productUrl: null };
 
-      const fullUrl = href.startsWith('http')
-        ? href
-        : `${store.base_url.replace(/\/$/, '')}${href}`;
+      const fullUrl = trimmedHref.startsWith('http')
+        ? trimmedHref
+        : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
       await page.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
       productUrl = page.url();
     } else {
@@ -53,13 +59,15 @@ async function attemptScrape(
       return { isAvailable: false, price: null, productUrl: null };
     }
 
-    // Extract price
+    // Extract price — wait for element to render before reading
     const priceSelector = store.selectors?.priceSelector ?? '[class*="price"]';
+    await page.waitForSelector(priceSelector, { timeout: 15_000 }).catch(() => null);
     const priceText = await page
       .locator(priceSelector)
       .first()
       .textContent({ timeout: 10_000 })
       .catch(() => null);
+    console.log(`[scraper] ${store.name}/${modelNumber} — priceText:`, JSON.stringify(priceText));
 
     if (!priceText) return { isAvailable: false, price: null, productUrl };
 

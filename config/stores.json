@@ -9,5 +9,15 @@
       "searchUrlPattern": "https://www.example-store.co.il/search?q={model_number}",
       "productLinkSelector": ".product-item a"
     }
+  },
+  {
+    "name": "MG Tools",
+    "base_url": "https://www.mgtools.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://www.mgtools.co.il/search/?q={model_number}",
+      "productLinkSelector": ".layout_list_item a",
+      "priceSelector": "span.price_value"
+    }
   }
 ]
