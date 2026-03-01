@@ -73,6 +73,42 @@ async function attemptScrape(
         : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
       await page.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
       productUrl = page.url();
+    } else if (store.selectors?.searchFormPageUrl && store.selectors?.searchInputSelector) {
+      // POST form-based search (e.g. ASP stores where search submits a form)
+      await page.goto(store.selectors.searchFormPageUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+      await page.fill(store.selectors.searchInputSelector, modelNumber);
+      await page.locator(store.selectors.searchInputSelector).press('Enter');
+
+      const linkSelector = store.selectors.productLinkSelector ?? 'a';
+      const linkFound = await page.waitForSelector(linkSelector, { timeout: 30_000 }).catch(() => null);
+      console.log(`[scraper] ${store.name}/${modelNumber} — page URL after search:`, page.url());
+      console.log(`[scraper] ${store.name}/${modelNumber} — link selector "${linkSelector}" found:`, !!linkFound);
+      const href = await page.locator(linkSelector).first().getAttribute('href').catch(() => null);
+      const trimmedHref = href?.trim() ?? null;
+      console.log(`[scraper] ${store.name}/${modelNumber} — href:`, trimmedHref);
+      if (!trimmedHref) return { isAvailable: false, price: null, productUrl: null };
+
+      if (store.selectors?.searchPagePriceSelector) {
+        const searchPriceText = await page
+          .locator(store.selectors.searchPagePriceSelector)
+          .first()
+          .textContent({ timeout: 5_000 })
+          .catch(() => null);
+        console.log(`[scraper] ${store.name}/${modelNumber} — searchPagePriceText:`, JSON.stringify(searchPriceText));
+        const searchPriceNum = parseFloat((searchPriceText ?? '').replace(/[^\d.]/g, ''));
+        if (!isNaN(searchPriceNum) && searchPriceNum > 0) {
+          const fullUrl = trimmedHref.startsWith('http')
+            ? trimmedHref
+            : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
+          return { isAvailable: true, price: searchPriceNum, productUrl: fullUrl };
+        }
+      }
+
+      const fullUrl = trimmedHref.startsWith('http')
+        ? trimmedHref
+        : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
+      await page.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+      productUrl = page.url();
     } else {
       // No selector config — cannot scrape this store
       console.warn(`[scraper] No selectors configured for store: ${store.name}`);

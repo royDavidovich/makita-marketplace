@@ -11,6 +11,17 @@
     }
   },
   {
+    "name": "Makita Israel",
+    "base_url": "https://www.makitaisrael.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchFormPageUrl": "https://www.makitaisrael.co.il/",
+      "searchInputSelector": "#strSearch",
+      "productLinkSelector": "a[itemprop=\"item\"]",
+      "searchPagePriceSelector": "span[itemprop=\"price\"]"
+    }
+  },
+  {
     "name": "KSP",
     "base_url": "https://ksp.co.il",
     "is_active": true,

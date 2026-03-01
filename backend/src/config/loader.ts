@@ -10,6 +10,8 @@ export interface StoreConfig {
     searchPagePriceSelector?: string;
     productUrlPattern?: string;
     searchUrlPattern?: string;
+    searchFormPageUrl?: string;
+    searchInputSelector?: string;
     productLinkSelector?: string;
   };
 }
