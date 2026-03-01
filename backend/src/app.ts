@@ -14,10 +14,12 @@ app.get('/api/health', (_req: Request, res: Response) => {
 // Routes (mounted after setup)
 export function mountRoutes(
   toolsRouter: express.Router,
-  categoriesRouter: express.Router
+  categoriesRouter: express.Router,
+  scrapeRouter: express.Router,
 ): void {
   app.use('/api/tools', toolsRouter);
   app.use('/api/categories', categoriesRouter);
+  app.use('/api/scrape', scrapeRouter);
 }
 
 // Centralised error handler

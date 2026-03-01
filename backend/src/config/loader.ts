@@ -8,6 +8,8 @@ export interface StoreConfig {
   selectors?: {
     priceSelector?: string;
     productUrlPattern?: string;
+    searchUrlPattern?: string;
+    productLinkSelector?: string;
   };
 }
 
