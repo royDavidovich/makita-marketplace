@@ -61,3 +61,37 @@ export function fetchTool(modelNumber: string): Promise<ToolDetail> {
 export function fetchCategories(): Promise<string[]> {
   return apiFetch<string[]>('/api/categories');
 }
+
+// --- Scrape API (operator only) ---
+
+export interface ScrapeStatus {
+  status: 'idle' | 'running' | 'completed' | 'failed';
+  started_at: string | null;
+  completed_at: string | null;
+  tools_scraped: number;
+  stores_scraped: number;
+  errors: number;
+}
+
+export async function triggerScrape(secret: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}/api/scrape/run`, {
+    method: 'POST',
+    headers: { 'X-Scrape-Secret': secret },
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`);
+  }
+}
+
+export async function fetchScrapeStatus(secret: string): Promise<ScrapeStatus> {
+  const res = await fetch(`${BASE_URL}/api/scrape/status`, {
+    headers: { 'X-Scrape-Secret': secret },
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`);
+  }
+  const json = await res.json() as { data: ScrapeStatus };
+  return json.data;
+}
