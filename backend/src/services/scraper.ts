@@ -114,14 +114,16 @@ async function isCorrectProduct(
   if (!exactMatch && !bodyOnlyVariantMatch && !bodyOnlyNoModelMatch) {
     // No model confirmed in text — fall back to URL slug for stores that embed the
     // model in their URL paths (e.g. Atlas Tools /items/...-DBO180Z-...).
-    // Guard: only apply URL fallback when text has at least one letter character.
-    // Purely numeric text (e.g. "1422", a catalog code) must not use URL confirmation —
-    // it could accept a bundle whose URL happens to contain the Z-less model code.
+    // Guard: only apply URL fallback when text has at least one letter character AND
+    // does not contain ₪. Purely numeric text (e.g. "1422") or price-display text
+    // (e.g. "מחיר רגיל ₪1,488") must not trigger URL confirmation — they have Hebrew
+    // letters but carry no product-identity information.
     const hasLetterContent = /[a-zA-Z\u0590-\u05FF]/.test(productText);
     const decodedHrefLower = decodeURIComponent(href).toLowerCase();
     const modelWithoutZLower = model.endsWith('z') ? model.slice(0, -1) : null;
     if (
       hasLetterContent &&
+      !productText.includes('₪') &&
       (decodedHrefLower.includes(model) ||
         (modelWithoutZLower !== null && decodedHrefLower.includes(modelWithoutZLower)))
     ) {
