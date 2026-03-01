@@ -50,5 +50,25 @@
       "productLinkSelector": "a[href*=\"/product/\"]",
       "priceSelector": "span.toal_saleprice_view"
     }
+  },
+  {
+    "name": "Brand Tools",
+    "base_url": "https://www.brandtools.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://www.brandtools.co.il/ProductsList.asp?WSearch={model_number}",
+      "productLinkSelector": "a[href*=\"ProductInfo.asp\"]",
+      "priceSelector": "span.leftPrice"
+    }
+  },
+  {
+    "name": "Atlas Tools",
+    "base_url": "https://www.atlastools.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://www.atlastools.co.il/search/?q={model_number}",
+      "productLinkSelector": ".layout_list_item a",
+      "priceSelector": "span.price_value"
+    }
   }
 ]
