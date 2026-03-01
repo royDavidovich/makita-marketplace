@@ -69,7 +69,7 @@ export default function ComparisonPage() {
       .map((l) => l.last_scraped_at)
       .filter((d): d is string => !!d)
       .sort()
-      .at(-1) ?? null;
+      .slice(-1)[0] ?? null;
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -95,7 +95,7 @@ export default function ComparisonPage() {
             {tool.category}
           </span>
           <h1 className="text-2xl font-bold text-gray-900 leading-snug">{tool.name}</h1>
-          <p className="text-sm text-gray-500 font-mono">{tool.model_number}</p>
+          <p className="text-xl text-gray-700 font-mono font-semibold">{tool.model_number}</p>
           {tool.description && (
             <p className="text-sm text-gray-600">{tool.description}</p>
           )}

@@ -40,5 +40,15 @@
       "productLinkSelector": ".layout_list_item a",
       "priceSelector": "span.price_value"
     }
+  },
+  {
+    "name": "Electro Slil",
+    "base_url": "https://www.electroslil.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://www.electroslil.co.il/items.asp?IsPostback=true&Qsearch={model_number}&stype=M",
+      "productLinkSelector": "a[href*=\"/product/\"]",
+      "priceSelector": "span.toal_saleprice_view"
+    }
   }
 ]
