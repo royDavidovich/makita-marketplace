@@ -47,7 +47,8 @@
     "selectors": {
       "searchUrlPattern": "https://www.brandtools.co.il/ProductsList.asp?WSearch={model_number}",
       "productLinkSelector": "a[href*=\"ProductInfo.asp\"]",
-      "searchPagePriceSelector": "font.price"
+      "searchPagePriceSelector": "font.price",
+      "priceSelector": "font.price"
     }
   },
   {

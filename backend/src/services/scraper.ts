@@ -15,6 +15,24 @@ const MAX_SEARCH_RESULTS = 20;
 const MODEL_NUMBER_RE = /\b[A-Z]{2,4}\d{2,4}[A-Z]{0,3}\b/g;
 
 /**
+ * Extracts the first with-VAT ₪ price from a product card text string.
+ * Skips ex-VAT prices (preceded by "(" as in "(₪508 ללא מע\"מ)") and rental rates
+ * (followed by "ליום", "לשעה", or "/יום").
+ */
+function extractFirstValidPrice(text: string): number | null {
+  const re = /₪([\d,]+)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > 0 && text[m.index - 1] === '(') continue;
+    const after = text.slice(m.index + m[0].length, m.index + m[0].length + 20);
+    if (/ליום|לשעה|\/יום/.test(after)) continue;
+    const price = parseFloat(m[1].replace(/,/g, ''));
+    if (!isNaN(price) && price > 0) return price;
+  }
+  return null;
+}
+
+/**
  * Returns the first non-trivial text found on or above a link element, climbing up to
  * 4 ancestor levels. Handles image-only links where the product title is in a sibling
  * cell of the same table row (common in classic ASP stores).
@@ -88,9 +106,31 @@ async function isCorrectProduct(
   const bodyOnlyVariantMatch =
     modelWithoutZ !== null && text.includes(modelWithoutZ) && text.includes('גוף');
 
-  if (!exactMatch && !bodyOnlyVariantMatch) {
-    console.log(`[scraper] ${storeName}/${modelNumber} — model number absent from product text, not available`);
-    return false;
+  // Rule 1c: body-only confirmed by text description (no model code required).
+  // Handles stores like Makita Israel whose titles are descriptive Hebrew with no model code.
+  // "גוף" (body/body-only) in a Z-model search is a strong body-only indicator.
+  const bodyOnlyNoModelMatch = modelWithoutZ !== null && text.includes('גוף');
+
+  if (!exactMatch && !bodyOnlyVariantMatch && !bodyOnlyNoModelMatch) {
+    // No model confirmed in text — fall back to URL slug for stores that embed the
+    // model in their URL paths (e.g. Atlas Tools /items/...-DBO180Z-...).
+    // Guard: only apply URL fallback when text has at least one letter character.
+    // Purely numeric text (e.g. "1422", a catalog code) must not use URL confirmation —
+    // it could accept a bundle whose URL happens to contain the Z-less model code.
+    const hasLetterContent = /[a-zA-Z\u0590-\u05FF]/.test(productText);
+    const decodedHrefLower = decodeURIComponent(href).toLowerCase();
+    const modelWithoutZLower = model.endsWith('z') ? model.slice(0, -1) : null;
+    if (
+      hasLetterContent &&
+      (decodedHrefLower.includes(model) ||
+        (modelWithoutZLower !== null && decodedHrefLower.includes(modelWithoutZLower)))
+    ) {
+      console.log(`[scraper] ${storeName}/${modelNumber} — model not in text, confirmed via URL slug, continuing checks`);
+      // fall through to rental / bundle checks below
+    } else {
+      console.log(`[scraper] ${storeName}/${modelNumber} — model number absent from product text and URL, not available`);
+      return false;
+    }
   }
 
   // Rule 1b: rental listing detection (Hebrew: "for rent", "rental")
@@ -110,7 +150,16 @@ async function isCorrectProduct(
   const allModels = productText.match(MODEL_NUMBER_RE) ?? [];
   const otherModels = allModels.filter((m) => {
     const lower = m.toLowerCase();
-    return lower !== model && lower !== (modelWithoutZ ?? model);
+    if (lower === model || lower === (modelWithoutZ ?? model)) return false;
+    // Exclude codes written as slash-separated alternative designations of the searched
+    // model (e.g. "DBO180Z/XOB01" — XOB01 is a cross-market code, not a bundle item)
+    if (
+      text.includes(`${model}/${lower}`) || text.includes(`${lower}/${model}`) ||
+      (modelWithoutZ !== null && (
+        text.includes(`${modelWithoutZ}/${lower}`) || text.includes(`${lower}/${modelWithoutZ}`)
+      ))
+    ) return false;
+    return true;
   });
   if (otherModels.length > 0) {
     console.log(
@@ -216,6 +265,19 @@ async function attemptScrape(
             : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
           return { isAvailable: true, price: searchPriceNum, productUrl: fullUrl };
         }
+
+        // nth(matchIndex) was null or invalid — the store has more links per card than price
+        // elements (e.g. Brand Tools: 4 links/card, 1 font.price/card → nth(8) fails).
+        // The full card text already contains the with-VAT price; extract it directly.
+        const cardText = await getProductText(page.locator(linkSelector).nth(matchIndex));
+        const cardTextPrice = extractFirstValidPrice(cardText ?? '');
+        if (cardTextPrice !== null) {
+          const fullUrl = trimmedHref.startsWith('http')
+            ? trimmedHref
+            : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
+          console.log(`[scraper] ${store.name}/${modelNumber} — card text price: ${cardTextPrice}`);
+          return { isAvailable: true, price: cardTextPrice, productUrl: fullUrl };
+        }
       }
 
       const fullUrl = trimmedHref.startsWith('http')
@@ -257,6 +319,17 @@ async function attemptScrape(
             ? trimmedHref
             : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
           return { isAvailable: true, price: searchPriceNum, productUrl: fullUrl };
+        }
+
+        // nth(matchIndex) was null or invalid — extract with-VAT price from card text.
+        const cardText = await getProductText(page.locator(linkSelector).nth(matchIndex));
+        const cardTextPrice = extractFirstValidPrice(cardText ?? '');
+        if (cardTextPrice !== null) {
+          const fullUrl = trimmedHref.startsWith('http')
+            ? trimmedHref
+            : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
+          console.log(`[scraper] ${store.name}/${modelNumber} — card text price: ${cardTextPrice}`);
+          return { isAvailable: true, price: cardTextPrice, productUrl: fullUrl };
         }
       }
 
