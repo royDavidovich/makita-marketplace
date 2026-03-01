@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { chromium, type Page } from 'playwright';
 import type { StoreConfig } from '../config/loader';
 
 export interface ScrapeResult {
@@ -8,6 +8,60 @@ export interface ScrapeResult {
 }
 
 const MAX_RETRIES = 2;
+
+// Matches Makita-style model numbers: 2-4 uppercase letters + 2-4 digits + 0-3 uppercase letters
+// Examples: DGA452Z, DTD157Z, DC18RC, DTM52Z
+const MODEL_NUMBER_RE = /\b[A-Z]{2,4}\d{2,4}[A-Z]{0,3}\b/g;
+
+/**
+ * Validates that the first matching product link on a search results page refers to the
+ * specific model being searched for (not an unrelated item or a bundle kit).
+ *
+ * Rules:
+ *  1. The product text must contain the searched model number.
+ *  2. The product text must not contain any *other* Makita-style model numbers (bundle guard).
+ *
+ * If the link has no readable text (e.g. image-only link), validation is skipped (returns true).
+ */
+async function isCorrectProduct(
+  page: Page,
+  linkSelector: string,
+  modelNumber: string,
+  storeName: string,
+): Promise<boolean> {
+  const firstLink = page.locator(linkSelector).first();
+
+  // Try the link's own text first; fall back to its parent container for image links
+  let productText = (await firstLink.textContent().catch(() => null))?.trim() ?? null;
+  if (!productText) {
+    productText = (await firstLink.locator('..').textContent().catch(() => null))?.trim() ?? null;
+  }
+
+  console.log(`[scraper] ${storeName}/${modelNumber} — product text for validation:`, JSON.stringify(productText));
+
+  if (!productText) {
+    // No readable text — cannot validate, allow through
+    return true;
+  }
+
+  // Rule 1: model number must appear in the product text
+  if (!productText.toLowerCase().includes(modelNumber.toLowerCase())) {
+    console.log(`[scraper] ${storeName}/${modelNumber} — model number absent from product text, not available`);
+    return false;
+  }
+
+  // Rule 2: no other model numbers alongside it (bundle detection)
+  const allModels = productText.match(MODEL_NUMBER_RE) ?? [];
+  const otherModels = allModels.filter((m) => m.toLowerCase() !== modelNumber.toLowerCase());
+  if (otherModels.length > 0) {
+    console.log(
+      `[scraper] ${storeName}/${modelNumber} — bundle detected (other models: ${otherModels.join(', ')}), not available`,
+    );
+    return false;
+  }
+
+  return true;
+}
 
 function buildUrl(pattern: string, baseUrl: string, modelNumber: string): string {
   const resolved = pattern.replace(/\{model(?:_number|Number)?\}/gi, modelNumber);
@@ -51,6 +105,10 @@ async function attemptScrape(
       console.log(`[scraper] ${store.name}/${modelNumber} — href:`, trimmedHref);
       if (!trimmedHref) return { isAvailable: false, price: null, productUrl: null };
 
+      if (!(await isCorrectProduct(page, linkSelector, modelNumber, store.name))) {
+        return { isAvailable: false, price: null, productUrl: null };
+      }
+
       // If store provides a search-page price selector, read price here before navigating away
       if (store.selectors?.searchPagePriceSelector) {
         const searchPriceText = await page
@@ -87,6 +145,10 @@ async function attemptScrape(
       const trimmedHref = href?.trim() ?? null;
       console.log(`[scraper] ${store.name}/${modelNumber} — href:`, trimmedHref);
       if (!trimmedHref) return { isAvailable: false, price: null, productUrl: null };
+
+      if (!(await isCorrectProduct(page, linkSelector, modelNumber, store.name))) {
+        return { isAvailable: false, price: null, productUrl: null };
+      }
 
       if (store.selectors?.searchPagePriceSelector) {
         const searchPriceText = await page

@@ -13,6 +13,9 @@ export interface StoreConfig {
     searchFormPageUrl?: string;
     searchInputSelector?: string;
     productLinkSelector?: string;
+    /** If set, the first product link's text must contain this string (supports {model_number} placeholder).
+     *  Use when the store's search returns unrelated results for missing items. */
+    productLinkTextFilter?: string;
   };
 }
 

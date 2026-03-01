@@ -1,13 +1,12 @@
 [
   {
-    "name": "Sample Store",
-    "base_url": "https://www.example-store.co.il",
-    "is_active": false,
+    "name": "KSP",
+    "base_url": "https://ksp.co.il",
+    "is_active": true,
     "selectors": {
-      "priceSelector": ".product-price",
-      "productUrlPattern": "/products/{model_number}",
-      "searchUrlPattern": "https://www.example-store.co.il/search?q={model_number}",
-      "productLinkSelector": ".product-item a"
+      "searchUrlPattern": "https://ksp.co.il/web/cat/?search={model_number}",
+      "productLinkSelector": "a[href^=\"/web/item/\"]",
+      "searchPagePriceSelector": "[aria-label^=\"מחיר המוצר\"]"
     }
   },
   {
@@ -19,16 +18,6 @@
       "searchInputSelector": "#strSearch",
       "productLinkSelector": "a[itemprop=\"item\"]",
       "searchPagePriceSelector": "span[itemprop=\"price\"]"
-    }
-  },
-  {
-    "name": "KSP",
-    "base_url": "https://ksp.co.il",
-    "is_active": true,
-    "selectors": {
-      "searchUrlPattern": "https://ksp.co.il/web/cat/?search={model_number}",
-      "productLinkSelector": "a[href^=\"/web/item/\"]",
-      "searchPagePriceSelector": "[aria-label^=\"מחיר המוצר\"]"
     }
   },
   {
