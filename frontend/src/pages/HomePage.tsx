@@ -112,6 +112,7 @@ export default function HomePage() {
   useEffect(() => {
     if (scrapeStatus?.status === 'completed') {
       void queryClient.invalidateQueries({ queryKey: ['tools'] });
+      void queryClient.invalidateQueries({ queryKey: ['tool'] });
     }
   }, [scrapeStatus?.status, queryClient]);
 
