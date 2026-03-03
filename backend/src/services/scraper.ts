@@ -236,57 +236,76 @@ async function attemptScrape(
       const searchUrl = buildUrl(store.selectors.searchUrlPattern, store.base_url, modelNumber);
       await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
 
-      const rawSelector = store.selectors.productLinkSelector ?? 'a';
-      const linkSelector = rawSelector.replace(/\{model_number\}/gi, modelNumber);
-      // Wait for search results to render (JS SPAs like KSP fetch results asynchronously).
-      // state:'attached' avoids timing out on stores that server-render hidden product cards.
-      const linkFound = await page.waitForSelector(linkSelector, { timeout: 30_000, state: 'attached' }).catch(() => null);
-      console.log(`[scraper] ${store.name}/${modelNumber} — page URL after search:`, page.url());
-      console.log(`[scraper] ${store.name}/${modelNumber} — link selector "${linkSelector}" found:`, !!linkFound);
+      const postNavigateUrl = page.url();
 
-      const match = await findMatchingLink(page, linkSelector, modelNumber, store.name);
-      if (!match) return { isAvailable: false, price: null, productUrl: null };
+      if (postNavigateUrl !== searchUrl) {
+        // Store redirected directly to a product page (single-result redirect, e.g. Atlas Tools
+        // when there is exactly one matching item). Skip the search-results-page link-finding
+        // logic and fall through to the product-page price extraction below.
+        const decodedUrl = decodeURIComponent(postNavigateUrl).toLowerCase();
+        const modelLower = modelNumber.toLowerCase();
+        const modelWithoutZLower = modelLower.endsWith('z') ? modelLower.slice(0, -1) : null;
+        if (decodedUrl.includes(modelLower) || (modelWithoutZLower !== null && decodedUrl.includes(modelWithoutZLower))) {
+          console.log(`[scraper] ${store.name}/${modelNumber} — search redirected to product page: ${postNavigateUrl}`);
+          productUrl = postNavigateUrl;
+        } else {
+          console.log(`[scraper] ${store.name}/${modelNumber} — search redirected but model not confirmed in URL, not available`);
+          return { isAvailable: false, price: null, productUrl: null };
+        }
+      } else {
+        // Normal search results page — find the matching product link and navigate to it
+        const rawSelector = store.selectors.productLinkSelector ?? 'a';
+        const linkSelector = rawSelector.replace(/\{model_number\}/gi, modelNumber);
+        // Wait for search results to render (JS SPAs like KSP fetch results asynchronously).
+        // state:'attached' avoids timing out on stores that server-render hidden product cards.
+        const linkFound = await page.waitForSelector(linkSelector, { timeout: 30_000, state: 'attached' }).catch(() => null);
+        console.log(`[scraper] ${store.name}/${modelNumber} — page URL after search:`, page.url());
+        console.log(`[scraper] ${store.name}/${modelNumber} — link selector "${linkSelector}" found:`, !!linkFound);
 
-      const { href: trimmedHref, index: matchIndex } = match;
+        const match = await findMatchingLink(page, linkSelector, modelNumber, store.name);
+        if (!match) return { isAvailable: false, price: null, productUrl: null };
 
-      // If store provides a search-page price selector, read price here before navigating away
-      if (store.selectors?.searchPagePriceSelector) {
-        const searchPriceText = await page
-          .locator(store.selectors.searchPagePriceSelector)
-          .nth(matchIndex)
-          .textContent({ timeout: 5_000 })
-          .catch(() => null);
-        console.log(`[scraper] ${store.name}/${modelNumber} — searchPagePriceText:`, JSON.stringify(searchPriceText));
-        const searchPriceNum = parseFloat((searchPriceText ?? '').replace(/[^\d.]/g, ''));
-        const isRentalPrice = /ליום|לשעה|\/יום/.test(searchPriceText ?? '');
-        if (isRentalPrice) {
-          console.log(`[scraper] ${store.name}/${modelNumber} — rental price indicator in price text, skipping search-page price`);
-        } else if (!isNaN(searchPriceNum) && searchPriceNum > 0) {
-          const fullUrl = trimmedHref.startsWith('http')
-            ? trimmedHref
-            : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
-          return { isAvailable: true, price: searchPriceNum, productUrl: fullUrl };
+        const { href: trimmedHref, index: matchIndex } = match;
+
+        // If store provides a search-page price selector, read price here before navigating away
+        if (store.selectors?.searchPagePriceSelector) {
+          const searchPriceText = await page
+            .locator(store.selectors.searchPagePriceSelector)
+            .nth(matchIndex)
+            .textContent({ timeout: 5_000 })
+            .catch(() => null);
+          console.log(`[scraper] ${store.name}/${modelNumber} — searchPagePriceText:`, JSON.stringify(searchPriceText));
+          const searchPriceNum = parseFloat((searchPriceText ?? '').replace(/[^\d.]/g, ''));
+          const isRentalPrice = /ליום|לשעה|\/יום/.test(searchPriceText ?? '');
+          if (isRentalPrice) {
+            console.log(`[scraper] ${store.name}/${modelNumber} — rental price indicator in price text, skipping search-page price`);
+          } else if (!isNaN(searchPriceNum) && searchPriceNum > 0) {
+            const fullUrl = trimmedHref.startsWith('http')
+              ? trimmedHref
+              : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
+            return { isAvailable: true, price: searchPriceNum, productUrl: fullUrl };
+          }
+
+          // nth(matchIndex) was null or invalid — the store has more links per card than price
+          // elements (e.g. Brand Tools: 4 links/card, 1 font.price/card → nth(8) fails).
+          // The full card text already contains the with-VAT price; extract it directly.
+          const cardText = await getProductText(page.locator(linkSelector).nth(matchIndex));
+          const cardTextPrice = extractFirstValidPrice(cardText ?? '');
+          if (cardTextPrice !== null) {
+            const fullUrl = trimmedHref.startsWith('http')
+              ? trimmedHref
+              : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
+            console.log(`[scraper] ${store.name}/${modelNumber} — card text price: ${cardTextPrice}`);
+            return { isAvailable: true, price: cardTextPrice, productUrl: fullUrl };
+          }
         }
 
-        // nth(matchIndex) was null or invalid — the store has more links per card than price
-        // elements (e.g. Brand Tools: 4 links/card, 1 font.price/card → nth(8) fails).
-        // The full card text already contains the with-VAT price; extract it directly.
-        const cardText = await getProductText(page.locator(linkSelector).nth(matchIndex));
-        const cardTextPrice = extractFirstValidPrice(cardText ?? '');
-        if (cardTextPrice !== null) {
-          const fullUrl = trimmedHref.startsWith('http')
-            ? trimmedHref
-            : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
-          console.log(`[scraper] ${store.name}/${modelNumber} — card text price: ${cardTextPrice}`);
-          return { isAvailable: true, price: cardTextPrice, productUrl: fullUrl };
-        }
+        const fullUrl = trimmedHref.startsWith('http')
+          ? trimmedHref
+          : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
+        await page.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+        productUrl = page.url();
       }
-
-      const fullUrl = trimmedHref.startsWith('http')
-        ? trimmedHref
-        : `${store.base_url.replace(/\/$/, '')}${trimmedHref}`;
-      await page.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
-      productUrl = page.url();
     } else if (store.selectors?.searchFormPageUrl && store.selectors?.searchInputSelector) {
       // POST form-based search (e.g. ASP stores where search submits a form)
       await page.goto(store.selectors.searchFormPageUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
