@@ -68,6 +68,7 @@ async function isCorrectProduct(
   href: string,
   modelNumber: string,
   storeName: string,
+  allowBodyOnlyNoModel: boolean,
 ): Promise<boolean> {
   const productText = await getProductText(linkLocator);
 
@@ -107,9 +108,11 @@ async function isCorrectProduct(
     modelWithoutZ !== null && text.includes(modelWithoutZ) && text.includes('גוף');
 
   // Rule 1c: body-only confirmed by text description (no model code required).
-  // Handles stores like Makita Israel whose titles are descriptive Hebrew with no model code.
-  // "גוף" (body/body-only) in a Z-model search is a strong body-only indicator.
-  const bodyOnlyNoModelMatch = modelWithoutZ !== null && text.includes('גוף');
+  // Only enabled for stores whose product titles are descriptive Hebrew with no model code
+  // (e.g. Makita Israel). For URL-pattern stores (KSP, Atlas Tools, etc.) this must be
+  // disabled — their search engines surface unrelated body-only products from other brands
+  // (e.g. Bosch GDX 180-LI גוף בלבד) that would otherwise pass all other checks.
+  const bodyOnlyNoModelMatch = allowBodyOnlyNoModel && modelWithoutZ !== null && text.includes('גוף');
 
   if (!exactMatch && !bodyOnlyVariantMatch && !bodyOnlyNoModelMatch) {
     // No model confirmed in text — fall back to URL slug for stores that embed the
@@ -182,6 +185,7 @@ async function findMatchingLink(
   linkSelector: string,
   modelNumber: string,
   storeName: string,
+  allowBodyOnlyNoModel: boolean,
 ): Promise<{ href: string; index: number } | null> {
   const allLinks = page.locator(linkSelector);
   const count = await allLinks.count().catch(() => 0);
@@ -194,7 +198,7 @@ async function findMatchingLink(
     const href = (await locator.getAttribute('href').catch(() => null))?.trim() ?? null;
     if (!href) continue;
 
-    if (await isCorrectProduct(locator, href, modelNumber, storeName)) {
+    if (await isCorrectProduct(locator, href, modelNumber, storeName, allowBodyOnlyNoModel)) {
       console.log(`[scraper] ${storeName}/${modelNumber} — matched result at index ${i}: ${href}`);
       return { href, index: i };
     }
@@ -262,7 +266,8 @@ async function attemptScrape(
         console.log(`[scraper] ${store.name}/${modelNumber} — page URL after search:`, page.url());
         console.log(`[scraper] ${store.name}/${modelNumber} — link selector "${linkSelector}" found:`, !!linkFound);
 
-        const match = await findMatchingLink(page, linkSelector, modelNumber, store.name);
+        // URL-pattern stores include model codes in product titles; disable bodyOnlyNoModelMatch
+        const match = await findMatchingLink(page, linkSelector, modelNumber, store.name, false);
         if (!match) return { isAvailable: false, price: null, productUrl: null };
 
         const { href: trimmedHref, index: matchIndex } = match;
@@ -319,7 +324,9 @@ async function attemptScrape(
       console.log(`[scraper] ${store.name}/${modelNumber} — page URL after search:`, page.url());
       console.log(`[scraper] ${store.name}/${modelNumber} — link selector "${linkSelector}" found:`, !!linkFound);
 
-      const match = await findMatchingLink(page, linkSelector, modelNumber, store.name);
+      // Form-search stores (e.g. Makita Israel) have Hebrew-only titles with no model code;
+      // allow bodyOnlyNoModelMatch so "גוף" alone is sufficient to identify body-only products
+      const match = await findMatchingLink(page, linkSelector, modelNumber, store.name, true);
       if (!match) return { isAvailable: false, price: null, productUrl: null };
 
       const { href: trimmedHref, index: matchIndex } = match;
