@@ -60,5 +60,15 @@
       "productLinkSelector": ".layout_list_item[data-item-code=\"{model_number}\"] a[href*=\"/items/\"]",
       "priceSelector": "span.price_value"
     }
+  },
+  {
+    "name": "Dror Tools",
+    "base_url": "https://www.dror-tools.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://www.dror-tools.co.il/search/?q={model_number}",
+      "productLinkSelector": ".layout_list_item a[href*=\"/items/\"]",
+      "priceSelector": "span.price_value"
+    }
   }
 ]
