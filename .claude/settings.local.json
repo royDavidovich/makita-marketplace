@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "WebFetch(domain:www.mgtools.co.il)",
-      "Bash(curl -s --max-time 30 -A \"Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36\" \"https://www.mgtools.co.il/search/?q=DTD157Z\" -o /tmp/mgtools_search.html -D /tmp/mgtools_search_headers.txt)"
-    ]
-  }
-}
