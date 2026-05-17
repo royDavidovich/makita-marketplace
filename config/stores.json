@@ -1,0 +1,74 @@
+[
+  {
+    "name": "KSP",
+    "base_url": "https://ksp.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://ksp.co.il/web/cat/?search={model_number}",
+      "productLinkSelector": "a[href^=\"/web/item/\"]",
+      "searchPagePriceSelector": "[aria-label^=\"מחיר המוצר\"]"
+    }
+  },
+  {
+    "name": "Makita Israel",
+    "base_url": "https://www.makitaisrael.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchFormPageUrl": "https://www.makitaisrael.co.il/",
+      "searchInputSelector": "#strSearch",
+      "productLinkSelector": "a[itemprop=\"item\"]",
+      "searchPagePriceSelector": "span[itemprop=\"price\"]"
+    }
+  },
+  {
+    "name": "MG Tools",
+    "base_url": "https://www.mgtools.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://www.mgtools.co.il/search/?q={model_number}",
+      "productLinkSelector": ".layout_list_item a",
+      "priceSelector": "span.price_value"
+    }
+  },
+  {
+    "name": "Electro Slil",
+    "base_url": "https://www.electroslil.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://www.electroslil.co.il/items.asp?IsPostback=true&Qsearch={model_number}&stype=M",
+      "productLinkSelector": "a[href*=\"/product/\"]",
+      "priceSelector": "span.toal_saleprice_view"
+    }
+  },
+  {
+    "name": "Brand Tools",
+    "base_url": "https://www.brandtools.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://www.brandtools.co.il/ProductsList.asp?WSearch={model_number}",
+      "productLinkSelector": "a[href*=\"ProductInfo.asp\"]",
+      "searchPagePriceSelector": "font.price",
+      "priceSelector": "font.price"
+    }
+  },
+  {
+    "name": "Atlas Tools",
+    "base_url": "https://www.atlastools.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://www.atlastools.co.il/search/?q={model_number}",
+      "productLinkSelector": ".layout_list_item[data-item-code=\"{model_number}\"] a[href*=\"/items/\"]",
+      "priceSelector": "span.price_value"
+    }
+  },
+  {
+    "name": "Dror Tools",
+    "base_url": "https://www.dror-tools.co.il",
+    "is_active": true,
+    "selectors": {
+      "searchUrlPattern": "https://www.dror-tools.co.il/search/?q={model_number}",
+      "productLinkSelector": ".layout_list_item a[href*=\"/items/\"]",
+      "priceSelector": "span.price_value"
+    }
+  }
+]
